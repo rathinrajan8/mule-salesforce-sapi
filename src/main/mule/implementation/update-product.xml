@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="update-product-sub-flow" doc:id="4969ce44-fed8-4b45-b99c-31f32c22c8cd" >
+		<logger level="INFO" doc:name="Start Of Update Products Flow" doc:id="fa1f0d3c-c4f3-440b-9912-8f0ca6da2784" message="Start Of Update Products Flow" />
+		<ee:transform doc:name="Store Product ID and Input Payload" doc:id="28411f0d-724c-4996-bc8a-6ad3efc0eb49" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+				<ee:set-variable variableName="productId" ><![CDATA[attributes.uriParams.productId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<until-successful maxRetries="${max.retry}" doc:name="Retry" doc:id="68da8a92-2094-4473-a8b6-1f4fed765a04" millisBetweenRetries="${max.time}" >
+			<try doc:name="Try" doc:id="7c67878a-1312-445b-a34b-86d2d6eb3326" >
+				<salesforce:query doc:name="Get Product ID" doc:id="bce37caf-18f5-4a5a-b49a-afeebbd8299c" config-ref="Salesforce_Config">
+					<salesforce:salesforce-query ><![CDATA[${salesforce.getProductIdQuery}]]></salesforce:salesforce-query>
+					<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"productId" : attributes.uriParams.productId
+}]]]></salesforce:parameters>
+				</salesforce:query>
+				<choice doc:name="Choice" doc:id="7a15cae4-ecf0-4a07-af28-5d0d2bc6a46c" >
+					<when expression="#[!isEmpty(payload)]">
+						<ee:transform doc:name="Salesforce Mapping" doc:id="7dd47912-1dff-4c60-b85f-3472b1f37723">
+							<ee:message>
+								<ee:set-payload resource="dwl/update-product.dwl" />
+							</ee:message>
+						</ee:transform>
+						<salesforce:update type="Product2" doc:name="Update Product" doc:id="dc17f1a2-afad-4a32-b169-cf85c29886ba" config-ref="Salesforce_Config" />
+					</when>
+					<otherwise >
+						<logger level="INFO" doc:name="Log Product ID Not Found" doc:id="5e97ed8f-b75e-40e8-a4c4-f6521a183ffc" message="#['Product ID Not Found in Salesforce']"/>
+						<set-variable value="#[true]" doc:name="Empty Update ID Flag" doc:id="5cc405a2-f795-4ace-a898-b6b8b0b1f4c2" variableName="emptyUpdateIdFlag"/>
+					</otherwise>
+				</choice>
+				<error-handler >
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e4f6b98c-43c4-47a1-baa5-8269b3f1ef4a" type="${salesforce.errorCodes}" >
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="8061b6c5-c8ea-4cd9-b37a-0c55e4b06bb3" message='#["Recoverable Error Occured - Retrying"]' />
+					</on-error-propagate>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2e9e4fea-6ffd-44f4-95fa-ca2fcba3ce3d" type="ANY" >
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="9aa0e2db-f675-4c2d-8d4b-2974bd657144" message='#["Unrecoverable Error Occured"]' />
+						<set-variable value="#[error]" doc:name="Error Payload" doc:id="073a9cb7-2377-4faa-ac1c-cfdb4e7fdb5f" variableName="errorPayload" />
+						<logger level="INFO" doc:name="Log Error" doc:id="3e7771f2-41f3-4695-b317-e7f6b3e81aa7" message='#["Product Creation Error - " ++ error.description]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
+		<choice doc:name="Choice" doc:id="f9af2aa5-e639-4d8d-923f-11ceebf1c1b1" >
+			<when expression="#[isEmpty(vars.errorPayload)]">
+				<ee:transform doc:name="Response Mapping" doc:id="86ac528c-7754-4e3b-9141-3cbb29d388de">
+			<ee:message>
+				<ee:set-payload resource="dwl/update-product-response.dwl" />
+			</ee:message>
+		</ee:transform>
+				<logger level="INFO" doc:name="Log Updation Success or Failure" doc:id="c6e32d5a-e954-4fe8-a9fe-a17c131b429e" message='#[if(payload.isSuccess == true) "Product Updation Successful" else "Product Updation Unsuccessful"]' />
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise SFDC:PRODUCT_UPDATION_FAILED Error" doc:id="3b33bcd9-4bb9-4510-bdd2-fd82e5502903" type="SFDC:PRODUCT_UPDATION_FAILED" description="#[vars.errorPayload]" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Of Update Products Flow" doc:id="431f7b0e-ddd5-4d26-9654-45d89e4f98ad" message="End Of Update Products Flow" />
+	</sub-flow>
+</mule>

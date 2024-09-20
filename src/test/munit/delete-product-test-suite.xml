@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="delete-product-test-suite.xml" >
+		<munit:parameterizations file="delete-product\delete-product-test-cases.yaml" />
+	</munit:config>
+	<munit:test name="delete-product-test-suite" doc:id="9a12788a-9b35-4fd2-ad7e-1ab985579056" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock SFDC Delete" doc:id="22d53a73-18c4-42ec-9526-455679f8f816" processor="salesforce:delete">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Delete Product" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="99ab0e1d-5d2a-4ed0-90ae-a0740dcbca00" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl(&quot;classpath://&quot; ++ p('responsePayload'), &quot;application/json&quot;)]" />
+					<munit-tools:error typeId="${errorType}" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="796b3dfa-03eb-487a-adb6-442edbfbd8bb" >
+				<munit:attributes value='#[{&#10;	"productId": "01tWU000007RjJZYA0"&#10;}]' />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="4ec83b1e-2df0-4d7c-b4e5-506b5065e28a" >
+				<flow-ref doc:name="Flow-ref to delete-product-sub-flow" doc:id="b3518f32-fd82-4cfe-a2b4-6af1bcc19d3c" name="delete-product-sub-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0aef3777-65e4-4878-a643-9d18062d2612" >
+						<logger level="INFO" doc:name="Log Error Occured" doc:id="e6ac711e-033e-43c6-8cc2-644248f42b36" message="#['Error Occured']"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify SFDC Call" doc:id="45ef637f-9ca6-4f45-a1cb-1d1e0d858df5" processor="salesforce:delete" times="${sfdcOutboundCalls}">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Delete Product" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="99ab0e1d-5d2a-4ed0-90ae-a0740dcbca00" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

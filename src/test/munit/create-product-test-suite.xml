@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="create-product-test-suite.xml" >
+		<munit:parameterizations file="create-product\create-product-test-cases.yaml" />
+	</munit:config>
+	<munit:test name="create-product-test-suite" doc:id="c09505f8-26dc-4d5e-b87d-43beeccbabaf" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock SFDC Create" doc:id="bc38b914-d1f2-4aaf-b9de-5fbcddd9ea76" processor="salesforce:create">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Product2" attributeName="type" />
+					<munit-tools:with-attribute whereValue="Create Product" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f75b8915-4877-4a8b-88ae-5bc42f434966" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl(&quot;classpath://&quot; ++ p('responsePayload'), &quot;application/json&quot;)]" />
+					<munit-tools:error typeId="${errorType}" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="aa903b93-7cbd-49df-964a-3a9d81cf0481" >
+				<munit:payload value="#[readUrl(&quot;classpath://&quot; ++ p('requestPayload'), &quot;application/json&quot;)]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="78972026-03da-459a-ab05-22fe3c2af5c3" >
+				<flow-ref doc:name="Flow-ref to create-product-sub-flow" doc:id="9f86d42a-3b81-4dfe-a01a-c00dd1169b9c" name="create-product-sub-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="6c454bee-6eac-4ba4-8907-f75f22cedf3c" >
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="5059a491-ccbf-4bd1-8194-73e830418ce5" message="#['Error Occured']" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify SFDC Call" doc:id="e0c41848-c7bb-4a0d-b57a-a3cad2b33273" processor="salesforce:create" times="${sfdcOutboundCalls}">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Product2" attributeName="type" />
+					<munit-tools:with-attribute whereValue="Create Product" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f75b8915-4877-4a8b-88ae-5bc42f434966" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

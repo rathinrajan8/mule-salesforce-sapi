@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<sub-flow name="get-products-sub-flow" doc:id="055d5142-5e1a-4c74-a2dd-213e9c717b8a" >
+		<logger level="INFO" doc:name="Start Of Get Products Flow" doc:id="99bfa079-4f8a-4a69-821c-627861fbaa51" message="Start Of Get Products Flow" />
+		<ee:transform doc:name="Choose Salesforce Query" doc:id="9a35793c-438e-4313-870f-f104be6cff9c" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="query" ><![CDATA[%dw 2.0
+output application/java
+---
+if (isEmpty(attributes.queryParams.offset) and isEmpty(attributes.queryParams.limit)) p('salesforce.getAllProductsQuery') else p('salesforce.getProductsQueryWithLimit')]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<until-successful maxRetries="${max.retry}" doc:name="Retry" doc:id="d2c86122-673f-40f6-bcd1-da16d0fae791" millisBetweenRetries="${max.time}" >
+			<try doc:name="Try" doc:id="04734689-d9ac-4cf9-8377-a55ab8fa0240" >
+				<salesforce:query doc:name="Get Products" doc:id="ebd182e3-c911-447b-9a56-e95c9595ea4d" config-ref="Salesforce_Config">
+					<salesforce:salesforce-query ><![CDATA[#[vars.query]]]></salesforce:salesforce-query>
+					<salesforce:parameters ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+	limit: attributes.queryParams.limit default 20,
+	offset: attributes.queryParams.offset default 0
+}]]]></salesforce:parameters>
+				</salesforce:query>
+				<error-handler >
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="43479b36-0753-43ae-b5a6-f40ebe510ffa" type="${salesforce.errorCodes}" >
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="4a43d04f-2c97-4859-a90d-1db03f5fbd45" message='#["Recoverable Error Occured - Retrying"]' />
+					</on-error-propagate>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fe217c30-779e-45a8-88bc-09dff3d82bbe" type="ANY" >
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="7f6547d2-e931-450e-913b-6189bac89954" message='#["Unrecoverable Error Occured"]' />
+						<set-variable value="#[error]" doc:name="Error Payload" doc:id="2d0ce0a6-0935-4490-b5c8-5eee496e00cc" variableName="errorPayload" />
+						<logger level="INFO" doc:name="Log Error" doc:id="fa4f962b-8cb7-41e6-94d5-e9280c28d11d" message='#["Product Creation Error - " ++ error.description]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
+		<choice doc:name="Choice" doc:id="0783d468-890d-4e4e-b6e7-14ec953d7965">
+			<when expression="#[isEmpty(vars.errorPayload)]">
+				<ee:transform doc:name="Response Mapping" doc:id="904918a3-b822-4ae8-806c-0e78a5594126">
+			<ee:message>
+						<ee:set-payload resource="dwl/get-products-response.dwl" />
+			</ee:message>
+		</ee:transform>
+				<logger level="INFO" doc:name="Log Get Products Success" doc:id="52c44713-9380-45b0-acc2-e6fc05b8aa05" message="#['Products Retrieval Successful']"/>
+			</when>
+			<otherwise>
+				<raise-error doc:name="Raise SFDC:RETRIEVE_PRODUCTS_FAILED Error" doc:id="060399fd-d907-4957-b4d8-ebbaabe6228c" type="SFDC:RETRIEVE_PRODUCTS_FAILED" description="#[vars.errorPayload]" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Of Get Products Flow" doc:id="978c02c1-51f7-4606-91e3-e5b5c37818de" message="End Of Get Products Flow" />
+	</sub-flow>
+</mule>

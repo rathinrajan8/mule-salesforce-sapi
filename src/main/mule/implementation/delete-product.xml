@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<sub-flow name="delete-product-sub-flow" doc:id="6bd57efb-cacf-4897-bcf5-7809ff6a4701" >
+		<logger level="INFO" doc:name="Start Of Delete Products Flow" doc:id="7c15a71a-ff5f-4893-9b36-1a34a935376d" message="Start Of Delete Products Flow" />
+		<until-successful maxRetries="${max.retry}" doc:name="Retry" doc:id="fd262216-b021-44a8-ac08-5eaa8d379b24" millisBetweenRetries="${max.time}">
+			<try doc:name="Try" doc:id="ee0f0378-e323-4887-816f-e74aac5083ca" >
+				<salesforce:delete doc:name="Delete Product" doc:id="99ab0e1d-5d2a-4ed0-90ae-a0740dcbca00" config-ref="Salesforce_Config">
+					<salesforce:ids ><![CDATA[#[[attributes.uriParams.productId]]]]></salesforce:ids>
+				</salesforce:delete>
+				<error-handler >
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="01dcd9b0-5403-4e06-a226-6e34906574d9" type="${salesforce.errorCodes}">
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="1693d99c-7831-4cd1-92f5-6a0def02ca08" message='#["Recoverable Error Occured - Retrying"]'/>
+					</on-error-propagate>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="b8f0d0cd-ccd5-4437-9d70-868247085d23" type="ANY">
+						<logger level="ERROR" doc:name="Log Error Occured" doc:id="4da8f8da-9453-4eeb-a305-bc194f9c8050" message='#["Unrecoverable Error Occured"]' />
+						<set-variable value="#[error]" doc:name="Error Payload" doc:id="f94be3ca-a6cc-4597-a3ea-09cc6341e536" variableName="errorPayload"/>
+						<logger level="INFO" doc:name="Log Error" doc:id="1030af41-bafc-4f5e-9117-82d327dc9b96" message='#["Product Deletion Error - " ++ error.description]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+
+		</until-successful>
+		<choice doc:name="Choice" doc:id="bb884126-c7aa-43c8-8d12-a36f543f289a">
+			<when expression="#[isEmpty(vars.errorPayload)]">
+				<ee:transform doc:name="Response Mapping" doc:id="2a0e67c5-545e-4c46-9d82-0e0dbe2bc900">
+					<ee:message>
+						<ee:set-payload resource="dwl/delete-product-response.dwl" />
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Log Deletion Success or Failure" doc:id="c6ee2a85-8137-4621-a69c-e7469bd7e99c" message='#[if(payload.isSuccess == true) "Product Deletion Successful" else "Product Deletion Unsuccessful"]'/>
+			</when>
+			<otherwise>
+				<raise-error doc:name="Raise SFDC:PRODUCT_DELETION_FAILED Error" doc:id="aa1cb8dc-3888-49b5-b9b2-4255415220a6" type="SFDC:PRODUCT_DELETION_FAILED" description="#[vars.errorPayload]" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Of Delete Products Flow" doc:id="6ac87da3-4c1f-44de-ae33-f2af7caaec7f" message="End Of Delete Products Flow"/>
+	</sub-flow>
+	
+	</mule>

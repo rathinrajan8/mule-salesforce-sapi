@@ -1,0 +1,25 @@
+Success:
+  requestPayload: "/create-product/create-product-success-request-payload.json"
+  responsePayload: "/create-product/create-product-success-response-payload.json"
+  errorType: ""
+  sfdcOutboundCalls: 1
+
+Invalid-Data:
+  requestPayload: "/create-product/create-product-invalid-data-request-payload.json"
+  responsePayload: "/create-product/create-product-invalid-data-response-payload.json"
+  errorType: ""
+  sfdcOutboundCalls: 1
+  
+Connectivity-Error:
+  requestPayload: "/create-product/create-product-sfdc-connectivity-error-request-payload.json"
+  responsePayload: "/create-product/create-product-sfdc-connectivity-error-response-payload.json"
+  errorType: "SALESFORCE:CONNECTIVITY"
+  sfdcOutboundCalls: 4
+
+Salesforce-Error:
+  requestPayload: "/create-product/create-product-sfdc-permission-error-request-payload.json"
+  responsePayload: "/create-product/create-product-sfdc-permission-error-response-payload.json"
+  errorType: "SALESFORCE:INSUFFICIENT_PERMISSIONS"
+  sfdcOutboundCalls: 1
+
+

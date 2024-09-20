@@ -1,0 +1,14 @@
+Success:
+  responsePayload: "/get-products/get-product-success-response-payload.json"
+  errorType: ""
+  sfdcOutboundCalls: 1
+  
+Connectivity-Error:
+  responsePayload: "/get-products/get-product-connectivity-error-response-payload.json"
+  errorType: "SALESFORCE:CONNECTIVITY"
+  sfdcOutboundCalls: 4
+
+Salesforce-Error:
+  responsePayload: "/get-products/get-product-sfdc-permission-error-response-payload.json"
+  errorType: "SALESFORCE:INSUFFICIENT_PERMISSIONS"
+  sfdcOutboundCalls: 1

@@ -1,0 +1,12 @@
+{
+	"API Name": "mule-salesforce-sapi",
+	"exceptionDetails": {
+		"description": "Salesforce Permission Error",
+		"exceptionCode": 500,
+		"exceptionMessage": "Unable to find access for entity in Salesforce",
+		"exceptionTimestamp": "2019-08-26T13:32:10.64-07:00"
+	},
+	"httpStatusCode": 500,
+	"success": false,
+	"correlationId": "123456-7890"
+}

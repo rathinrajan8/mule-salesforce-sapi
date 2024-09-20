@@ -1,0 +1,18 @@
+[
+    {
+        "productId": "01tWU000007H75CYAS",
+        "productCode": "SC00678",
+        "name": "Gorilla Screen Guard",
+        "productPrice": "130.0",
+        "currencyCode": "USD",
+        "description": "Sample Product"
+    },
+    {
+        "productId": "01tWU000007H81JYAS",
+        "productCode": "SC00678",
+        "name": "Gorilla Screen Guard",
+        "productPrice": "140.0",
+        "currencyCode": "USD",
+        "description": "Sample Product"
+    }
+]

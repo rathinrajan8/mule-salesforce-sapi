@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <flow name="mule-salesforce-sapi-main">
+        <http:listener config-ref="mule-salesforce-sapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-variable value="#[attributes.headers.'x-correlation-id' default correlationId]" doc:name="Store Correlation ID" doc:id="a7f111db-d75c-41ac-8d17-8b80675d074f" variableName="correlationId" />
+        <apikit:router config-ref="mule-salesforce-sapi-config" />
+    </flow>
+    <flow name="put:\products\(productId)\update:application\json:mule-salesforce-sapi-config">
+        <flow-ref doc:name="Call update-product-sub-flow" doc:id="56ea66ab-48d3-43b7-a69b-288f09481e93" name="update-product-sub-flow" />
+    </flow>
+    <flow name="delete:\products\(productId)\delete:mule-salesforce-sapi-config">
+        <flow-ref doc:name="Call delete-product-sub-flow" doc:id="3ab5120a-f58c-4106-9f45-5916154bce7d" name="delete-product-sub-flow" />
+    </flow>
+    <flow name="get:\healthcheck:mule-salesforce-sapi-config">
+        <logger level="INFO" doc:name="Log Start Of Health Check" doc:id="7228bd58-cd20-4e1c-a830-6fafc1bc2495" message="Start Of Health Check" />
+        <ee:transform doc:name="Health Check Success" doc:id="54cc53d5-4f77-46fd-8b1b-d042439ab8b7">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"API Name": p('api.name'),
+	"Status": "Success"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" doc:name="Log End Of Health Check" doc:id="031a5b02-2498-4e87-8ab0-0d72bbc177ca" message="End Of Health Check" />
+    </flow>
+    <flow name="get:\products:mule-salesforce-sapi-config">
+        <flow-ref doc:name="Call get-products-sub-flow" doc:id="540ba946-cda5-48b7-8a61-3bb8d89574f5" name="get-products-sub-flow" />
+    </flow>
+    <flow name="post:\products\create:application\json:mule-salesforce-sapi-config">
+        <flow-ref doc:name="Call create-product-sub-flow" doc:id="7aea3d95-6325-487b-a82e-f4f5fe6191ed" name="create-product-sub-flow" />
+    </flow>
+</mule>
