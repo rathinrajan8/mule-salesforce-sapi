@@ -35,30 +35,30 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 			</try>
 
 		</until-successful>
-		<choice doc:name="Choice" doc:id="5ebeb1bd-1b3a-44e2-bdee-e3e45cdc4789" >
+		<choice doc:name="Choice" doc:id="fde2557d-2fec-4a67-b7f4-6927f3d85eba" >
 			<when expression="#[isEmpty(vars.errorPayload)]">
-				<ee:transform doc:name="Response Mapping" doc:id="9b80dafd-6eb7-4534-8288-1d22bc6b83e5">
+				<ee:transform doc:name="Response Mapping" doc:id="7f5c94bb-3e6a-41b7-8908-980e171b15e1">
 			<ee:message>
 				<ee:set-payload resource="dwl/create-product-response.dwl" />
 			</ee:message>
 		</ee:transform>
-				<logger level="INFO" doc:name="Log Processed And Unprocessed Records" doc:id="cd1e88ca-5056-4962-8217-e34b69837736" message='#[%dw 2.0&#10;output application/json skipNullOn="everywhere"&#10;fun getProcessedOrUnprocessedRecords(val: Boolean) = (payload filter ($.isSuccess == val)).productId&#10;---&#10;{&#10;	"processedRecords": getProcessedOrUnprocessedRecords(true),&#10;&#10;	&#10;}]'/>
-				<choice doc:name="Choice" doc:id="ef95cf4f-0744-4133-9ed3-3d409388d929" >
-					<when expression="#[isEmpty(payload map ($.isSuccess) filter ($ == false))]">
-						<logger level="INFO" doc:name="Log All Product Success" doc:id="76e8fcbc-8479-40d1-933e-22cccc1d05ba" message="#['All products created successfully']"/>
+				<logger level="INFO" doc:name="Log Processed And Unprocessed Records" doc:id="65198729-b550-4c85-86c2-0133fb5818d8" message='#[%dw 2.0&#10;output application/json skipNullOn="everywhere"&#10;fun getProcessedOrUnprocessedRecords(val: Boolean) = (payload filter ($.isSuccess == val)).productId&#10;---&#10;{&#10;	"processedRecords": getProcessedOrUnprocessedRecords(true),&#10;&#10;	&#10;}]'/>
+				<!-- [STUDIO:"Choice"]<choice doc:name="Choice" doc:id="a3b187c1-d6ef-47be-a385-b9542b47f96d" >
+					<when expression="#[isEmpty(payload map ($.isSuccess) filter ($ == false))&#93;">
+						<logger level="INFO" doc:name="Log All Product Success" doc:id="284d107b-892f-4414-95b0-9e75b44602e6" message="#['All products created successfully'&#93;"/>
 					</when>
 					<otherwise >
-						<set-variable value="#[500]" doc:name="Set httpStatus" doc:id="3a2656ad-155d-41bc-ba99-c2e5a0054fe8" variableName="httpStatus"/>
-						<logger level="INFO" doc:name="Log Few Products Failed" doc:id="1fe1a832-4be0-47eb-bcc3-69a4ba3c00e2" message="#['Few products failed to create']"/>
+						<set-variable value="#[500&#93;" doc:name="Set httpStatus" doc:id="fa900f9c-451d-4a32-b31b-278ed3bc6735" variableName="httpStatus"/>
+						<logger level="INFO" doc:name="Log Few Products Failed" doc:id="be16bfe2-fcb1-4a08-92ac-4d1f046510a4" message="#['Few products failed to create'&#93;"/>
 					</otherwise>
-				</choice>
+				</choice> [STUDIO] -->
 			</when>
 			<otherwise>
-				<raise-error doc:name="Raise SFDC:PRODUCT_CREATION_FAILED Error" doc:id="7446ae03-2479-4335-861c-a12a6aadf13f" type="SFDC:PRODUCT_CREATION_FAILED" description="#[vars.errorPayload]" />
+				<raise-error doc:name="Raise SFDC:PRODUCT_CREATION_FAILED Error" doc:id="f82a67bb-2da8-48fb-aae1-4bf969aa46b3" type="SFDC:PRODUCT_CREATION_FAILED" description="#[vars.errorPayload]" />
 			</otherwise>
 		</choice>
-		<logger level="INFO" doc:name="End Of Create Products Flow" doc:id="10993c25-1930-4acd-a908-9e6a1b0cdb91" message="End Of Create Products Flow"/>
-	</sub-flow>
+		<logger level="INFO" doc:name="End Of Create Products Flow" doc:id="1899b411-af0b-4593-9320-d4db6185da53" message="End Of Create Products Flow"/>
+		</sub-flow>
 	
 	
 </mule>

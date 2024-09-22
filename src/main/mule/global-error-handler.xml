@@ -53,7 +53,7 @@ output application/json
 			</ee:transform>
 		</on-error-propagate> -->
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d4f98698-d16e-47f4-ac75-7da0c0ac1478" type="ANY">
-			<set-variable value="#[error.muleMessage.attributes.statusCode default 500]" doc:name="Set httpStatus" doc:id="3f40e5f2-4a52-43d3-941b-d17048c62fec" variableName="httpStatus" />
+			<set-variable value="#[500]" doc:name="Set httpStatus" doc:id="3f40e5f2-4a52-43d3-941b-d17048c62fec" variableName="httpStatus" />
 			<flow-ref doc:name="Call global-error-handler-transform-flow " doc:id="effb901f-ec83-48f9-a0d1-da7d111a1170" name="global-error-handler-transform-flow" />
 		</on-error-propagate>
 		
