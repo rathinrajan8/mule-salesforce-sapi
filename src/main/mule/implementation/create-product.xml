@@ -42,7 +42,7 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 				<ee:set-payload resource="dwl/create-product-response.dwl" />
 			</ee:message>
 		</ee:transform>
-				<logger level="INFO" doc:name="Log Processed And Unprocessed Records" doc:id="cd1e88ca-5056-4962-8217-e34b69837736" message='#[%dw 2.0&#10;output application/json skipNullOn="everywhere"&#10;fun getProcessedOrUnprocessedRecords(val: Boolean) = (payload filter ($.isSuccess == val)).productId&#10;---&#10;{&#10;	"processedRecords": getProcessedOrUnprocessedRecords(true),&#10;	"unProcessedRecords": getProcessedOrUnprocessedRecords(false)&#10;	&#10;}]'/>
+				<logger level="INFO" doc:name="Log Processed And Unprocessed Records" doc:id="cd1e88ca-5056-4962-8217-e34b69837736" message='#[%dw 2.0&#10;output application/json skipNullOn="everywhere"&#10;fun getProcessedOrUnprocessedRecords(val: Boolean) = (payload filter ($.isSuccess == val)).productId&#10;---&#10;{&#10;	"processedRecords": getProcessedOrUnprocessedRecords(true),&#10;&#10;	&#10;}]'/>
 				<choice doc:name="Choice" doc:id="ef95cf4f-0744-4133-9ed3-3d409388d929" >
 					<when expression="#[isEmpty(payload map ($.isSuccess) filter ($ == false))]">
 						<logger level="INFO" doc:name="Log All Product Success" doc:id="76e8fcbc-8479-40d1-933e-22cccc1d05ba" message="#['All products created successfully']"/>
