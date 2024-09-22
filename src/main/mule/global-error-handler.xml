@@ -13,6 +13,10 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<set-variable value="#[400]" doc:name="Set httpStatus" doc:id="3619b035-60c1-4870-a878-dce52890977b" variableName="httpStatus" />
 			<flow-ref doc:name="Call global-error-handler-transform-flow " doc:id="339bab7d-f262-4207-a663-3528a03846b0" name="global-error-handler-transform-flow" />
 		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="595bcb70-8958-422d-bb24-f0f32ebddf62" type="HTTP:NOT_FOUND,APIKIT:NOT_FOUND">
+			<set-variable value="#[404]" doc:name="Set httpStatus" doc:id="30606b35-7769-41bb-9fa1-aa62e429e3d5" variableName="httpStatus" />
+			<flow-ref doc:name="Call global-error-handler-transform-flow " doc:id="bdd7d211-f10c-406c-8c25-d7be3a5d840f" name="global-error-handler-transform-flow" />
+		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3b41c329-810e-49fe-a0ad-62227ba35f35" type="HTTP:RETRY_EXHAUSTED">
 			<set-variable value="#[500]" doc:name="Set httpStatus" doc:id="a3aaae7c-1a58-4ca1-81c4-bd24381c7769" variableName="httpStatus" />
 			<flow-ref doc:name="Call global-error-handler-transform-flow " doc:id="676d47ab-47d9-4444-8d6a-19186bf49360" name="global-error-handler-transform-flow" />
@@ -52,6 +56,7 @@ output application/json
 			<set-variable value="#[error.muleMessage.attributes.statusCode default 500]" doc:name="Set httpStatus" doc:id="3f40e5f2-4a52-43d3-941b-d17048c62fec" variableName="httpStatus" />
 			<flow-ref doc:name="Call global-error-handler-transform-flow " doc:id="effb901f-ec83-48f9-a0d1-da7d111a1170" name="global-error-handler-transform-flow" />
 		</on-error-propagate>
+		
 	</error-handler>
 	<sub-flow name="global-error-handler-transform-flow" doc:id="94ba5db4-0e33-4a54-ad37-61087dc77dbf" >
 		<ee:transform doc:name="Error Transform" doc:id="f24f5220-b268-4487-86c2-274e2d3478b2" >
