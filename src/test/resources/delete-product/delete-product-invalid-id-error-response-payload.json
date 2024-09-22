@@ -1,0 +1,11 @@
+{
+    "productId": "01tWU000007RjJZYA0",
+    "isSuccess": false,
+    "error": [
+        {
+            "message": "entity is deleted",
+            "fields": [],
+            "statusCode": "ENTITY_IS_DELETED"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+api:
+  name: "mule-salesforce-sapi"
+
+https:
+  host: "0.0.0.0"
+  port: "8082"
+  timeout: "120000"
+  
+salesforce:
+  errorCodes: "SALESFORCE:CONNECTIVITY, SALESFORCE:TIMEOUT, SALESFORCE:UNAVAILABLE"
+  getProductIdQuery: SELECT Id FROM Product2 WHERE Id =':productId'
+  getProductsQueryWithLimit: SELECT Id, ProductCode, Name, ProductPrice__c, CurrencyCode__c, Description FROM Product2 limit :limit offset :offset
+  getAllProductsQuery: SELECT Id, ProductCode, Name, ProductPrice__c, CurrencyCode__c, Description FROM Product2

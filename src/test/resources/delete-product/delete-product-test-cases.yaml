@@ -1,0 +1,19 @@
+Success:
+  responsePayload: "/delete-product/delete-product-success-response-payload.json"
+  errorType: ""
+  sfdcOutboundCalls: 1
+
+Invalid-Id:
+  responsePayload: "/delete-product/delete-product-invalid-id-error-response-payload.json"
+  errorType: ""
+  sfdcOutboundCalls: 1
+  
+Connectivity-Error:
+  responsePayload: "/delete-product/delete-product-connectivity-error-response-payload.json"
+  errorType: "SALESFORCE:CONNECTIVITY"
+  sfdcOutboundCalls: 4
+
+Salesforce-Error:
+  responsePayload: "/delete-product/delete-product-sfdc-permission-error-response-payload.json"
+  errorType: "SALESFORCE:INSUFFICIENT_PERMISSIONS"
+  sfdcOutboundCalls: 1

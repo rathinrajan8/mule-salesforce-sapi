@@ -1,0 +1,12 @@
+[
+    {
+        "productId": "",
+        "isSuccess": false,
+        "error": "ExternalId: invalid number: P00000000075 INVALID_TYPE_ON_FIELD_IN_RECORD"
+    },
+    {
+        "productId": "",
+        "isSuccess": false,
+        "error": "ExternalId: invalid number: P00000000076 INVALID_TYPE_ON_FIELD_IN_RECORD"
+    }
+]

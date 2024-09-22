@@ -1,0 +1,16 @@
+api:
+  id: "19938815"
+
+keystore:
+  path: "keystore.jks"
+  alias: "mule"
+
+  
+salesforce:
+  url: "https://login.salesforce.com/services/Soap/u/56"
+  
+max:
+  retry: "3"
+  time: "10000"
+  
+   
