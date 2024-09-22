@@ -6,7 +6,7 @@ output application/json
 	exceptionDetails: {
 		description: error.description,
 		exceptionCode: vars.httpStatus,
-		exceptionMessage: if(error.muleMessage != null) error.muleMessage.payload else null,
+		exceptionMessage: if(error.muleMessage != null) error.muleMessage.payload else error.detailedDescription default "Error Occured. Kindly contact with the developer for further details",
 		exceptionTimestamp: now()
 	},
 	httpStatusCode: vars.httpStatus,
